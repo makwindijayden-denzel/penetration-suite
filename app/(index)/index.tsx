@@ -1,107 +1,102 @@
+
 import React from "react";
 import { Stack, router } from "expo-router";
-import { FlatList, Pressable, StyleSheet, View, Text } from "react-native";
-// Components
+import { FlatList, Pressable, StyleSheet, View, Text, StatusBar } from "react-native";
 import { IconCircle } from "@/components/IconCircle";
 import { IconSymbol } from "@/components/IconSymbol";
-import { BodyScrollView } from "@/components/BodyScrollView";
-import { Button } from "@/components/button";
-// Constants & Hooks
-import { backgroundColors } from "@/constants/Colors";
-
-const ICON_COLOR = "#007AFF";
+import { colors, commonStyles } from "@/styles/commonStyles";
+import { toolCategories, ToolCategory } from "@/data/pentestTools";
 
 export default function HomeScreen() {
-
-  const modalDemos = [
-    {
-      title: "Standard Modal",
-      description: "Full screen modal presentation",
-      route: "/modal",
-      color: "#007AFF",
-    },
-    {
-      title: "Form Sheet",
-      description: "Bottom sheet with detents and grabber",
-      route: "/formsheet",
-      color: "#34C759",
-    },
-    {
-      title: "Transparent Modal",
-      description: "Overlay without obscuring background",
-      route: "/transparent-modal",
-      color: "#FF9500",
-    }
-  ];
-
-  const renderModalDemo = ({ item }: { item: typeof modalDemos[0] }) => (
-    <View style={styles.demoCard}>
-      <View style={[styles.demoIcon, { backgroundColor: item.color }]}>
-        <IconSymbol name="square.grid.3x3" color="white" size={24} />
+  const renderCategoryCard = ({ item }: { item: ToolCategory }) => (
+    <Pressable
+      style={[styles.categoryCard, { borderColor: item.color }]}
+      onPress={() => router.push(`/category/${item.id}`)}
+    >
+      <View style={styles.cardHeader}>
+        <IconCircle
+          emoji={item.icon}
+          backgroundColor={item.color}
+          size={50}
+        />
+        <View style={styles.toolCount}>
+          <Text style={styles.toolCountText}>{item.toolCount}</Text>
+        </View>
       </View>
-      <View style={styles.demoContent}>
-        <Text style={styles.demoTitle}>{item.title}</Text>
-        <Text style={styles.demoDescription}>{item.description}</Text>
+      <View style={styles.cardContent}>
+        <Text style={styles.categoryTitle}>{item.name}</Text>
+        <Text style={styles.categoryDescription}>{item.description}</Text>
       </View>
-      <Button
-        variant="outline"
-        size="sm"
-        onPress={() => router.push(item.route as any)}
-      >
-        Try It
-      </Button>
-    </View>
+      <View style={styles.cardFooter}>
+        <IconSymbol name="chevron.right" color={item.color} size={20} />
+      </View>
+    </Pressable>
   );
 
-  const renderEmptyList = () => (
-    <BodyScrollView contentContainerStyle={styles.emptyStateContainer}>
-      <IconCircle
-        emoji=""
-        backgroundColor={
-          backgroundColors[Math.floor(Math.random() * backgroundColors.length)]
-        }
-      />
-    </BodyScrollView>
+  const renderHeader = () => (
+    <View style={styles.headerSection}>
+      <Text style={styles.headerTitle}>PenTest Arsenal</Text>
+      <Text style={styles.headerSubtitle}>
+        Professional penetration testing toolkit with comprehensive security tools and resources
+      </Text>
+      <View style={styles.statsContainer}>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>{toolCategories.length}</Text>
+          <Text style={styles.statLabel}>Categories</Text>
+        </View>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>41</Text>
+          <Text style={styles.statLabel}>Tools</Text>
+        </View>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>100%</Text>
+          <Text style={styles.statLabel}>Free</Text>
+        </View>
+      </View>
+    </View>
   );
 
   const renderHeaderRight = () => (
     <Pressable
-      onPress={() => {console.log("plus")}}
+      onPress={() => router.push('/search')}
       style={styles.headerButtonContainer}
     >
-      <IconSymbol name="plus" color={ICON_COLOR} />
+      <IconSymbol name="magnifyingglass" color={colors.primary} size={24} />
     </Pressable>
   );
 
   const renderHeaderLeft = () => (
     <Pressable
-      onPress={() => {console.log("gear")}}
+      onPress={() => router.push('/settings')}
       style={styles.headerButtonContainer}
     >
-      <IconSymbol
-        name="gear"
-        color={ICON_COLOR}
-      />
+      <IconSymbol name="gear" color={colors.primary} size={24} />
     </Pressable>
   );
 
   return (
     <>
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
       <Stack.Screen
         options={{
-          title: "Building the app...",
+          title: "",
+          headerStyle: {
+            backgroundColor: colors.background,
+          },
+          headerTintColor: colors.text,
           headerRight: renderHeaderRight,
           headerLeft: renderHeaderLeft,
         }}
       />
       <View style={styles.container}>
         <FlatList
-          data={modalDemos}
-          renderItem={renderModalDemo}
-          keyExtractor={(item) => item.route}
+          data={toolCategories}
+          renderItem={renderCategoryCard}
+          keyExtractor={(item) => item.id}
+          ListHeaderComponent={renderHeader}
           contentContainerStyle={styles.listContainer}
-          contentInsetAdjustmentBehavior="automatic"
           showsVerticalScrollIndicator={false}
+          numColumns={1}
         />
       </View>
     </>
@@ -111,71 +106,119 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background,
   },
   headerSection: {
     padding: 20,
-    paddingBottom: 16,
-    backgroundColor: 'white',
+    paddingBottom: 30,
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e5e5',
+    borderBottomColor: colors.grey + '30',
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.primary,
     marginBottom: 8,
+    textAlign: 'center',
+    fontFamily: 'monospace',
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#666',
+    color: colors.text,
     lineHeight: 22,
+    textAlign: 'center',
+    marginBottom: 20,
+    opacity: 0.8,
   },
-  listContainer: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-  },
-  demoCard: {
-    backgroundColor: 'white',
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 16,
-    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colors.grey + '30',
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.primary,
+    fontFamily: 'monospace',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: colors.text,
+    marginTop: 4,
+    opacity: 0.7,
+  },
+  listContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 20,
+  },
+  categoryCard: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 20,
+    marginVertical: 8,
+    borderWidth: 2,
+    borderColor: colors.grey + '30',
     flexDirection: 'row',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  demoIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
+  cardHeader: {
+    position: 'relative',
     marginRight: 16,
   },
-  demoContent: {
+  toolCount: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: colors.card,
+  },
+  toolCountText: {
+    color: colors.background,
+    fontSize: 12,
+    fontWeight: 'bold',
+    fontFamily: 'monospace',
+  },
+  cardContent: {
     flex: 1,
   },
-  demoTitle: {
+  categoryTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 6,
+    fontFamily: 'monospace',
   },
-  demoDescription: {
+  categoryDescription: {
     fontSize: 14,
-    color: '#666',
+    color: colors.text,
+    opacity: 0.7,
     lineHeight: 18,
   },
-  emptyStateContainer: {
-    alignItems: "center",
-    gap: 8,
-    paddingTop: 100,
+  cardFooter: {
+    marginLeft: 12,
   },
   headerButtonContainer: {
-    padding: 6, // Just enough padding around the 24px icon
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: colors.backgroundAlt,
   },
 });
